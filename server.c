@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:48 by aumarin           #+#    #+#             */
-/*   Updated: 2022/10/25 01:26:19 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/10/25 02:32:39 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	handle_sig(int sig, siginfo_t *info, void *ucontext)
 	static int	char_dec_value = 0;
 	int			i;
 	int			e;
+	static int	test = 0;
 
 	(void)ucontext;
 	count--;
@@ -31,18 +32,18 @@ void	handle_sig(int sig, siginfo_t *info, void *ucontext)
 				e *= 2;
 			char_dec_value += e;
 		}
+		else
+			test++;
 	}
 	else
 	{
-		ft_printf("%c", char_dec_value);
+		if (!(test == 8))
+			write(1, &char_dec_value, 1);
 		count = 7;
 		char_dec_value = 0;
 	}
 	if (info->si_pid > 0 && kill(info->si_pid, SIGUSR1))
-	{
-		usleep(1);
 		pause();
-	}
 }
 
 int	main(void)

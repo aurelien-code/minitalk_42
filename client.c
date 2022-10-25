@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:43 by aumarin           #+#    #+#             */
-/*   Updated: 2022/10/23 21:09:23 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/10/25 02:31:14 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,13 @@ int	main(int argc, char **argv)
 	{
 		send_char(argv[2][i], ft_atoi(argv[1]));
 		i++;
+	}
+	i = 0;
+	while (i < 8)
+	{
+		kill(ft_atoi(argv[1]), SIGUSR2);
+		i++;
+		pause();
 	}
 	return (0);
 }
