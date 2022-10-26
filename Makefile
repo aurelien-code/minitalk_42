@@ -5,22 +5,43 @@
 #                                                     +:+ +:+         +:+      #
 #    By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/10/22 17:41:33 by aumarin           #+#    #+#              #
-#    Updated: 2022/10/23 12:33:38 by aumarin          ###   ########.fr        #
+#    Created: 2022/10/26 13:20:05 by aumarin           #+#    #+#              #
+#    Updated: 2022/10/26 13:42:24 by aumarin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-all:
-	gcc client.c utils/libft.a utils/libftprintf.a -o client
-	gcc server.c utils/libft.a utils/libftprintf.a -o server
+SERVER_NAME = server
+CLIENT_NAME = client
 
-client:
-	gcc client.c utils/libft.a utils/libftprintf.a -o client
+SERVER_SRC = server.c
+SERVER_OBJ = $(SERVER_SRC:.c=.o)
+CLIENT_SRC = client.c
+CLIENT_OBJ = $(CLIENT_SRC:.c=.o)
+C_FLAGS = -Wall -Wextra -Werror
+CC = gcc
 
-server:
-	gcc server.c utils/libft.a utils/libftprintf.a -o server
+all: $(SERVER_NAME) $(CLIENT_NAME)
+
+.c.o:
+	@echo "\033[0;33mcompiling... \033[0;37m"
+	@gcc $(C_FLAGS)  -I . -c $< -o $(<:.c=.o)
+
+$(SERVER_NAME): $(SERVER_OBJ)
+	@echo "\033[0;33mlinking... \033[0;37m"	
+	@$(CC)  $(C_FLAGS) -o $@ $^ utils/libftprintf.a utils/libft.a
+
+$(CLIENT_NAME): $(CLIENT_OBJ)
+	@echo "\033[0;33mlinking... \033[0;37m"	
+	@$(CC)  $(C_FLAGS) -o $@ $^ utils/libftprintf.a utils/libft.a
 
 clean:
-	rm -rf client
-	rm -rf server
-	rm -rf *.o
+	@echo "\033[0;33mdeleting objects... \033[0;37m"
+	@rm -f $(SERVER_OBJ) $(CLIENT_OBJ)
+	@echo "\033[0;33mdone \033[0;37m"
+
+fclean: clean
+	@echo "\033[0;33mdeleting executable... \033[0;37m"
+	@rm -f $(SERVER_NAME) $(CLIENT_NAME)
+	@echo "\033[0;33mdone \033[0;37m"
+
+re: fclean all
