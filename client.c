@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:43 by aumarin           #+#    #+#             */
-/*   Updated: 2022/10/25 02:31:14 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/10/27 02:02:38 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,16 +56,33 @@ void	sig_handler(int sig)
 		ft_printf("Signal de reponse recu\n");
 }
 
-int	main(int argc, char **argv)
+void	send_msg_len(int len, int pid)
 {
 	int	i;
 
-	ft_printf("CLIENT PID = %d\n", getpid());
-	if (argc != 3)
+	i = 31;
+	while (i >= 0)
+	{
+		if ((len & (1 << i)))
+			kill(pid, SIGUSR1);
+		else
+			kill(pid, SIGUSR2);
+		pause();
+		i--;
+	}
+}
+
+int	main(int argc, char **argv)
+{
+	int		i;
+
+	if (argc != 3 || ft_atoi(argv[1]) < 0)
 		return (1);
+	ft_printf("CLIENT PID = %d\n", getpid());
 	signal(SIGUSR1, sig_handler);
+	send_msg_len(ft_strlen(argv[2]), ft_atoi(argv[1]));
 	i = 0;
-	while (i < ft_strlen(argv[2]))
+	while ((size_t)i < ft_strlen(argv[2]))
 	{
 		send_char(argv[2][i], ft_atoi(argv[1]));
 		i++;

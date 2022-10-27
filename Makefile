@@ -6,7 +6,7 @@
 #    By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/26 13:20:05 by aumarin           #+#    #+#              #
-#    Updated: 2022/10/26 13:42:24 by aumarin          ###   ########.fr        #
+#    Updated: 2022/10/27 01:09:29 by aumarin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,11 +27,11 @@ all: $(SERVER_NAME) $(CLIENT_NAME)
 	@gcc $(C_FLAGS)  -I . -c $< -o $(<:.c=.o)
 
 $(SERVER_NAME): $(SERVER_OBJ)
-	@echo "\033[0;33mlinking... \033[0;37m"	
+	@echo "\033[0;33mlinking server... \033[0;37m"	
 	@$(CC)  $(C_FLAGS) -o $@ $^ utils/libftprintf.a utils/libft.a
 
 $(CLIENT_NAME): $(CLIENT_OBJ)
-	@echo "\033[0;33mlinking... \033[0;37m"	
+	@echo "\033[0;33mlinking client... \033[0;37m"	
 	@$(CC)  $(C_FLAGS) -o $@ $^ utils/libftprintf.a utils/libft.a
 
 clean:
