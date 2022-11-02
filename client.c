@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:43 by aumarin           #+#    #+#             */
-/*   Updated: 2022/10/27 02:02:38 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/02 18:47:00 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	send_msg_len(int len, int pid)
 
 int	main(int argc, char **argv)
 {
-	int		i;
+	size_t	i;
 
 	if (argc != 3 || ft_atoi(argv[1]) < 0)
 		return (1);
@@ -82,17 +82,10 @@ int	main(int argc, char **argv)
 	signal(SIGUSR1, sig_handler);
 	send_msg_len(ft_strlen(argv[2]), ft_atoi(argv[1]));
 	i = 0;
-	while ((size_t)i < ft_strlen(argv[2]))
+	while (i < ft_strlen(argv[2]))
 	{
 		send_char(argv[2][i], ft_atoi(argv[1]));
 		i++;
-	}
-	i = 0;
-	while (i < 8)
-	{
-		kill(ft_atoi(argv[1]), SIGUSR2);
-		i++;
-		pause();
 	}
 	return (0);
 }

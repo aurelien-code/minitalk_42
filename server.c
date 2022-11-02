@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:48 by aumarin           #+#    #+#             */
-/*   Updated: 2022/10/27 04:06:23 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/02 18:49:43 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,85 +14,91 @@
 
 char	*g_message = NULL;
 
-int	decode_save(int count, int sig)
+int	ft_pow(int n, int pow)
 {
-	int			char_dec_value;
-	int			i;
-	int			e;
-
-	char_dec_value = 0;
-	if (count >= 0)
-	{
-		if (sig == SIGUSR1)
-		{
-			i = -1;
-			e = 1;
-			while (++i < count)
-				e *= 2;
-			char_dec_value += e;
-		}
-	}
-	return (char_dec_value);
+	if (pow)
+		return (n * ft_pow(n, pow - 1));
+	else
+		return (1);
 }
 
-int	init_message_length(int sig, int i, int len)
+int	init_message_lenght(int sig, int sig_count)
 {
-	if (sig == SIGUSR1)
-		len += 1 << i;
-	else if (sig == SIGUSR2)
-		len += 0 << i;
-	if (i == 0)
+	int	len;
+
+	len = 0;
+	if (sig_count <= 32)
 	{
-		g_message = malloc(sizeof(char) * (len + 1));
-		if (!g_message)
-			return (-1);
+		if (sig == SIGUSR1)
+			len = ft_pow(2, 32 - sig_count);
+		else if (sig == SIGUSR2)
+			len = 0;
 	}
-	i--;
 	return (len);
 }
 
-void	add_char_in_message(int *count, int *char_dec_value, int *e, int sig)
+void	decode_character(int sig, int *sig_count, int *message_len)
 {
-	if (--*count >= 0)
+	static int	bit_count = 0;
+	static int	char_count = 0;
+	static int	char_val = 0;
+
+	if (bit_count < 8)
 	{
 		if (sig == SIGUSR1)
-			*char_dec_value += decode_save(*count, sig);
+			char_val += ft_pow(2, 7 - bit_count);
+		bit_count++;
 	}
-	else
+	if (bit_count == 8)
 	{
-		if (*char_dec_value != 0)
-			g_message[++*e] = *char_dec_value;
-		*count = 7;
-		*char_dec_value = 0;
+		*message_len = *message_len - 1;
+		g_message[char_count] = char_val;
+		char_count++;
+		bit_count = 0;
+		char_val = 0;
+		if (*message_len == 0)
+		{
+			g_message[char_count] = '\0';
+			ft_printf("[New message]\n%s\n", g_message);
+			free(g_message);
+			*sig_count = 0;
+			char_count = 0;
+		}
 	}
 }
 
+/* 
+	TODO 
+		-	Check changement de pid avant la fin du recu du message ! S
+			Super important pour eviter que le sereur plante alors qu'il n'a pas
+			recu toute la chaine d'un client !!!
+*/
 void	handle_sig(int sig, siginfo_t *info, void *ucontext)
 {
-	static int	count = 8;
-	static int	char_dec_value = 0;
-	static int	len = 0;
-	static int	i = 32;
-	static int	e = -1;
+	static int	sig_received_count = 0;
+	static int	message_len = 0;
+	static int	pid_ = 0;
 
 	(void)ucontext;
-	if (--i >= 0)
-		len = init_message_length(sig, i, len);
-	else
+	if ((sig == SIGUSR1 || sig == SIGUSR2) && sig_received_count >= 0)
 	{
-		add_char_in_message(&count, &char_dec_value, &e, sig);
-		if (count == 0 && char_dec_value == 0)
+		sig_received_count++;
+		pid_ = info->si_pid;
+		if (sig_received_count <= 32)
+			message_len += init_message_lenght(sig, sig_received_count);
+		if (sig_received_count == 32)
 		{
-			g_message[len] = '\0';
-			len = 0;
-			e = -1;
-			i = 32;
-			ft_printf("New message -> %s\n", g_message);
-			free(g_message);
+			g_message = malloc(sizeof(char) * (message_len + 1));
+			if (!g_message)
+				return ;
+		}
+		if (sig_received_count > 32 && message_len > 0)
+		{
+			decode_character(sig, &sig_received_count, &message_len);
 		}
 	}
-	if (info->si_pid > 0 && kill(info->si_pid, SIGUSR1))
-		pause();
+	if (info->si_pid > 0)
+		kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
@@ -108,6 +114,8 @@ int	main(void)
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
-		;
+	{
+		pause();
+	}
 	return (0);
 }
