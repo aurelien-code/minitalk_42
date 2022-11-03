@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:48 by aumarin           #+#    #+#             */
-/*   Updated: 2022/11/03 01:12:23 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/03 01:29:06 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	init_message_lenght(int sig, int sig_count)
 	return (len);
 }
 
-void	decode_character(int sig, int *sig_count, int *message_len)
+void	decode_character(int sig, int *message_len)
 {
 	static int	bit_count = 0;
 	static int	char_count = 0;
@@ -42,12 +42,8 @@ void	decode_character(int sig, int *sig_count, int *message_len)
 		char_count = 0;
 		return ;
 	}
-	if (bit_count < 8)
-	{
-		if (sig == SIGUSR1)
-			char_val += ft_pow(2, 7 - bit_count);
-		bit_count++;
-	}
+	if (bit_count < 8 && ++bit_count && sig == SIGUSR1)
+			char_val += ft_pow(2, 8 - bit_count);
 	if (bit_count == 8 && ++char_count)
 	{
 		*message_len = *message_len - 1;
@@ -56,11 +52,8 @@ void	decode_character(int sig, int *sig_count, int *message_len)
 		char_val = 0;
 		if (*message_len == 0)
 		{
-			g_message[char_count] = '\0';
 			ft_printf("[New message]\n%s\n", g_message);
 			free(g_message);
-			*sig_count = 0;
-			char_count = 0;
 		}
 	}
 }
@@ -73,7 +66,7 @@ void	reset_server(int *sig_count, int *msg_len, int *pid_c, siginfo_t *info)
 	*msg_len = 0;
 	*pid_c = info->si_pid;
 	*sig_count = 0;
-	decode_character(-1, sig_count, msg_len);
+	decode_character(-1, msg_len);
 }
 
 void	handle_sig(int sig, siginfo_t *info, void *ucontext)
@@ -99,7 +92,7 @@ void	handle_sig(int sig, siginfo_t *info, void *ucontext)
 				return ;
 		}
 		if (sig_count > 32 && message_len > 0)
-			decode_character(sig, &sig_count, &message_len);
+			decode_character(sig, &message_len);
 	}
 	if (info->si_pid > 0)
 		kill(info->si_pid, SIGUSR1);
