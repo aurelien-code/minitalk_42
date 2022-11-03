@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:43 by aumarin           #+#    #+#             */
-/*   Updated: 2022/11/02 18:47:00 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/03 05:56:26 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@ int	*encode_char(char c)
 	int	*encoded;
 	int	i;
 
-	encoded = malloc(sizeof(int) * 8);
+	encoded = ft_calloc(sizeof(int), 8);
+	if (!encoded)
+		return (NULL);
 	i = 0;
 	while (i < 8)
 	{
