@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:43 by aumarin           #+#    #+#             */
-/*   Updated: 2022/11/03 05:56:26 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/04 05:45:15 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int	main(int argc, char **argv)
 {
 	size_t	i;
 
-	if (argc != 3 || ft_atoi(argv[1]) < 0)
+	if (argc != 3 || ft_atoi(argv[1]) <= 0)
 		return (1);
 	ft_printf("CLIENT PID = %d\n", getpid());
 	signal(SIGUSR1, sig_handler);

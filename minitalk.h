@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/23 15:46:40 by aumarin           #+#    #+#             */
-/*   Updated: 2022/11/03 00:40:33 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/04 01:40:18 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 # include <signal.h>
 # include <unistd.h>
 # include <stdlib.h>
+//# include "./utils/libft/libft.h"
+# include "./utils/ft_printf/ft_printf.h"
+
 
 int		ft_atoi(const char *str);
 int		ft_printf(const char *str, ...);
