@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:43 by aumarin           #+#    #+#             */
-/*   Updated: 2022/11/04 05:45:15 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/08 17:41:23 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,15 @@ void	send_char(char c, int pid)
 	while (i < 8)
 	{
 		if (encoded_char[i] == 1)
-			kill(pid, SIGUSR1);
+		{
+			if (kill(pid, SIGUSR1) < 0)
+				exit(0);
+		}
 		else
-			kill(pid, SIGUSR2);
+		{
+			if (kill(pid, SIGUSR2) < 0)
+				exit(0);
+		}
 		pause();
 		ft_printf("%d eme bit envoye\n", i + 1);
 		i++;
@@ -66,9 +72,15 @@ void	send_msg_len(int len, int pid)
 	while (i >= 0)
 	{
 		if ((len & (1 << i)))
-			kill(pid, SIGUSR1);
+		{
+			if (kill(pid, SIGUSR1) < 0)
+				exit(0);
+		}
 		else
-			kill(pid, SIGUSR2);
+		{
+			if (kill(pid, SIGUSR2) < 0)
+				exit(0);
+		}
 		pause();
 		i--;
 	}
@@ -80,7 +92,6 @@ int	main(int argc, char **argv)
 
 	if (argc != 3 || ft_atoi(argv[1]) <= 0)
 		return (1);
-	ft_printf("CLIENT PID = %d\n", getpid());
 	signal(SIGUSR1, sig_handler);
 	send_msg_len(ft_strlen(argv[2]), ft_atoi(argv[1]));
 	i = 0;
