@@ -6,7 +6,7 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:48 by aumarin           #+#    #+#             */
-/*   Updated: 2022/11/09 03:06:41 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/09 05:57:16 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	decode_character(int sig, int *message_len)
 		char_val = 0;
 		if (*message_len == 0)
 		{
-			ft_printf("%s\n", g_message);
+			ft_printf("Msg length = %d\n%s\n", ft_strlen(g_message), g_message);
 			free(g_message);
 		}
 	}
@@ -107,8 +107,6 @@ int	main(void)
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
 	sa.sa_sigaction = &handle_sig;
-	sigaddset(&sa.sa_mask, SIGUSR1);
-	sigaddset(&sa.sa_mask, SIGUSR2);
 	ft_printf("pid = %d\n", pid);
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);

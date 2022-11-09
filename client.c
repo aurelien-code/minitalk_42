@@ -6,11 +6,13 @@
 /*   By: aumarin <aumarin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 17:36:43 by aumarin           #+#    #+#             */
-/*   Updated: 2022/11/09 03:31:35 by aumarin          ###   ########.fr       */
+/*   Updated: 2022/11/09 05:57:31 by aumarin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
+
+char	*g_message = NULL;
 
 void	encode_str(int *ecd_msg, char *str)
 {
@@ -52,58 +54,68 @@ void	encode_len(int *ecd_msg, int len)
 	}
 }
 
-void	handle_sig(int sig)
+void	send(int bit_idx, int pid)
+{
+	static int	*encoded_msg = 0;
+
+	if (bit_idx == -1)
+	{
+		encoded_msg = malloc(sizeof(int) * (ft_strlen(g_message) * 8 + 32));
+		if (!encoded_msg)
+			return ;
+		encode_len(encoded_msg, ft_strlen(g_message));
+		encode_str(encoded_msg, g_message);
+		bit_idx++;
+	}
+	if (bit_idx < (int)(ft_strlen(g_message) * 8 + 32) && bit_idx >= 0)
+	{
+		if (encoded_msg[bit_idx] == 1 && kill(pid, SIGUSR1) != 0)
+			send(-2, 0);
+		else if (encoded_msg[bit_idx] == 0 && kill(pid, SIGUSR2) != 0)
+			send(-2, 0);
+	}
+	else
+	{
+		if (bit_idx != -2)
+			ft_printf("Message sent! Length = %d\n", ft_strlen(g_message));
+		free(encoded_msg);
+		exit(0);
+	}
+}
+
+void	handle_sig(int sig, siginfo_t *info, void *ucontext)
 {
 	static int	sig_count = 0;
 
+	(void)ucontext;
 	if (sig == SIGUSR1)
 	{
 		sig_count++;
-		ft_putstr_fd("Signal recu #", 1);
-		ft_putnbr_fd(sig_count, 1);
-		ft_putstr_fd("\n", 1);
+		send(sig_count, info->si_pid);
 	}
-	return ;
-}
-
-void	is_args_valid(int argc, char **argv)
-{
-	int	i;
-
-	if (argc != 3 || ft_atoi(argv[1]) <= 0)
-		exit(0);
-	i = -1;
-	while (argv[1][++i])
-	{
-		if (!ft_isdigit(argv[1][i]))
-			exit(0);
-	}
-	return ;
 }
 
 int	main(int argc, char **argv)
 {
-	size_t	i;
-	int		*encoded_msg;
+	struct sigaction	sa;
+	int					i;
 
-	is_args_valid(argc, argv);
-	signal(SIGUSR1, &handle_sig);
-	encoded_msg = malloc(sizeof(int) * ((ft_strlen(argv[2]) * 8) + 32));
-	if (!encoded_msg)
-		return (1);
-	encode_len(encoded_msg, ft_strlen(argv[2]));
-	encode_str(encoded_msg, argv[2]);
+	if (argc != 3 || ft_atoi(argv[1]) <= 0)
+		exit(0);
 	i = 0;
-	while (i <= (ft_strlen(argv[2]) * 8 + 32))
+	while (argv[1][i])
 	{
-		if (encoded_msg[i] == 1 && kill(ft_atoi(argv[1]), SIGUSR1) == 0)
-			i++;
-		else if (encoded_msg[i] == 0 && kill(ft_atoi(argv[1]), SIGUSR2) == 0)
-			i++;
-		else
-			break ;
-		pause();
+		if (!ft_isdigit(argv[1][i]))
+			exit(0);
+		i++;
 	}
-	free(encoded_msg);
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = &handle_sig;
+	sigaction(SIGUSR1, &sa, NULL);
+	g_message = argv[2];
+	send(-1, ft_atoi(argv[1]));
+	while (1)
+		pause();
 	return (0);
 }
